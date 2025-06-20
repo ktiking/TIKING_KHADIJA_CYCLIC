@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1750378298 source:c:\users\khadi\downloads\bfs\main.cpp
+	<iostream>
+	<vector>
+	<queue>
+	<stack>
+
