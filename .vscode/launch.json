@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/Khadi/Downloads/BFS",
-      "program": "c:/Users/Khadi/Downloads/BFS/build/Debug/outDebug",
+      "cwd": "c:/xampp/htdocs/TIKING_KHADIJA_CYCLE/cyclic_bfs",
+      "program": "c:/xampp/htdocs/TIKING_KHADIJA_CYCLE/cyclic_bfs/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

@@ -1,103 +1,96 @@
 #include <iostream>
 #include <vector>
 #include <stack>
-
+#include <algorithm>
 using namespace std;
 
-const int MAX = 100;
-int graph[MAX][MAX];
-int n;
-bool isDirected = true;
+const int N = 7; 
 
-bool dfsDirected(int node, vector<bool>& visited, vector<bool>& recStack, vector<int>& parent) {
+int graph[N][N] = {
+    {0, 0, 1, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0}, 
+    {1, 1, 0, 0, 0, 1, 0}, 
+    {1, 0, 0, 0, 1, 0, 0},
+    {0, 0, 1, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0}
+};
+
+char nodeLabel(int index) {
+    return 'A' + index;
+}
+
+void dfsTraversal(int start) {
+    vector<bool> visited(N, false);
+    stack<int> s;
+    s.push(start);
+
+    cout << "DFS Traversal from " << nodeLabel(start) << ": ";
+    while (!s.empty()) {
+        int node = s.top();
+        s.pop();
+
+        if (!visited[node]) {
+            visited[node] = true;
+            cout << nodeLabel(node) << " ";
+
+            for (int i = N - 1; i >= 0; --i) {
+                if (graph[node][i] && !visited[i])
+                    s.push(i);
+            }
+        }
+    }
+    cout << endl;
+}
+
+bool dfsCycleHelper(int node, vector<bool>& visited, vector<bool>& recStack, vector<int>& path) {
     visited[node] = true;
     recStack[node] = true;
+    path.push_back(node);
 
-    for (int v = 0; v < n; v++) {
-        if (graph[node][v]) {
-            if (!visited[v]) {
-                parent[v] = node;
-                if (dfsDirected(v, visited, recStack, parent))
+    for (int i = 0; i < N; ++i) {
+        if (graph[node][i]) {
+            if (!visited[i]) {
+                if (dfsCycleHelper(i, visited, recStack, path))
                     return true;
-            } else if (recStack[v]) {
-                cout << "(DIRECTED) Cycle detected: ";
-                int current = node;
-                stack<int> cycleStack;
-                cycleStack.push(current);
-                while (current != v) {
-                    current = parent[current];
-                    cycleStack.push(current);
-                }
-                while (!cycleStack.empty()) {
-                    cout << cycleStack.top() << " -> ";
-                    cycleStack.pop();
-                }
-                cout << v << endl;
+            } else if (recStack[i]) {
+                // Found cycle
+                cout << "Cycle detected (DFS): ";
+                auto it = find(path.begin(), path.end(), i);
+                while (it != path.end())
+                    cout << nodeLabel(*it++) << " -> ";
+                cout << nodeLabel(i) << endl;
                 return true;
             }
         }
     }
 
     recStack[node] = false;
+    path.pop_back();
     return false;
 }
 
-bool dfsUndirected(int node, vector<bool>& visited, int parent) {
-    visited[node] = true;
-    for (int v = 0; v < n; v++) {
-        if (graph[node][v]) {
-            if (!visited[v]) {
-                if (dfsUndirected(v, visited, node))
-                    return true;
-            } else if (v != parent) {
-                cout << "(UNDIRECTED) Cycle detected: " << node << " -> " << v << endl;
+bool detectCycleDFS() {
+    vector<bool> visited(N, false);
+    vector<bool> recStack(N, false);
+    vector<int> path;
+
+    for (int i = 0; i < N; ++i) {
+        if (!visited[i]) {
+            if (dfsCycleHelper(i, visited, recStack, path))
                 return true;
-            }
         }
     }
+
+    cout << "No cycle found (DFS).\n";
     return false;
 }
 
 int main() {
-    n = 4;
-    isDirected = true;
-    int sampleDirected[4][4] = {
-        {0, 1, 0, 0},
-        {0, 0, 1, 0},
-        {0, 0, 0, 1},
-        {1, 0, 0, 0}
-    };
-    int sampleUndirected[4][4] = {
-        {0, 1, 0, 0},
-        {1, 0, 1, 0},
-        {0, 1, 0, 1},
-        {0, 0, 1, 0}
-    };
+    int start = 3;
 
-    for (int i = 0; i < n; ++i)
-        for (int j = 0; j < n; ++j)
-            graph[i][j] = isDirected ? sampleDirected[i][j] : sampleUndirected[i][j];
-
-    if (isDirected) {
-        vector<bool> visited(n, false), recStack(n, false);
-        vector<int> parent(n, -1);
-        for (int i = 0; i < n; ++i) {
-            if (!visited[i]) {
-                if (dfsDirected(i, visited, recStack, parent))
-                    return 0;
-            }
-        }
-        cout << "(DIRECTED) No cycle found.\n";
-    } else {
-        vector<bool> visited(n, false);
-        for (int i = 0; i < n; ++i) {
-            if (!visited[i]) {
-                if (dfsUndirected(i, visited, -1))
-                    return 0;
-            }
-        }
-        cout << "(UNDIRECTED) No cycle found.\n";
-    }
+    dfsTraversal(start);
+    detectCycleDFS();
 
     return 0;
 }
